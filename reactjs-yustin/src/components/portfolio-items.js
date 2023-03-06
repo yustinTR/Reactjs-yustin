@@ -8,7 +8,3 @@ const Item = ({title,body,image}) => (
     </div>
 )
 
-Item.propTypes ={
-    title: PropTypes.string.isRequired,
-    body: PropTypes.string.isRequired,
-}
