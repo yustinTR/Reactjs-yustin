@@ -1,30 +1,40 @@
-import React from 'react';
 import axios from 'axios';
-
-export default class PersonList extends React.Component {
+import React, { useState, useEffect } from 'react';
+export default class ArticleComponent extends React.Component {
     state = {
-        persons: []
+        articles: [],
+        images: []
     }
-
     componentDidMount() {
-        axios.get(`https://drupal-yustin.ddev.site/jsonapi/node/portfolio_item`)
+        axios.get(`https://drupal-yustin.ddev.site/jsonapi/node/article?include=field_image`)
             .then(res => {
-                const persons = res.data.data;
-                console.log(persons);
-                this.setState({ persons });
+                const articles = res.data.data;
+                const images = res.data.included;
+                this.setState({ articles });
+                this.setState({ images });
             })
     }
-
     render() {
+        const base= "https://drupal-yustin.ddev.site/";
+        let articlesArray = [];
+        let articleObject= {};
+        this.state.articles.map(article => {
+            articleObject = {id: 0, title: ''}
+            articleObject.id = article.id
+            articleObject.title = article.attributes.title
+            articlesArray[article.relationships.field_image.data.id] = articleObject
+        })
+        this.state.images.map(image => {
+            articlesArray[image.id].image = base + image.attributes.uri.url
+            articlesArray[image.id].imageID = image.id
+        })
         return (
-            <ul>
-                {
-                    this.state.persons
-                        .map(person =>
-                            <li key={person.id}>{person.attributes.title}</li>
-                        )
-                }
-            </ul>
+            Object.keys(articlesArray).map(key => (
+                <>
+                    <h1 key={articlesArray[key].id}>{articlesArray[key].title}</h1>
+                    <img key={articlesArray[key].imageID} src={articlesArray[key].image}/>
+                </>
+            ))
         )
-    }
-}
+    }}
+
